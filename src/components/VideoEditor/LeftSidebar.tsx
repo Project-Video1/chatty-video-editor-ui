@@ -1,17 +1,17 @@
 
 import React from 'react';
-import { Import, Audio, Text, Stickers, Effects, Transitions, Layers, Sliders } from 'lucide-react';
+import { FileVideo, Radio, Text, Sticker, Layers, Sliders, Music, Video } from 'lucide-react';
 
 export const LeftSidebar: React.FC = () => {
   const tools = [
-    { icon: Import, label: 'Import' },
-    { icon: Audio, label: 'Audio' },
+    { icon: FileVideo, label: 'Import' },
+    { icon: Music, label: 'Audio' },
     { icon: Text, label: 'Text' },
-    { icon: Stickers, label: 'Stickers' },
-    { icon: Effects, label: 'Effects' },
-    { icon: Transitions, label: 'Transitions' },
+    { icon: Sticker, label: 'Stickers' },
+    { icon: Video, label: 'Effects' },
+    { icon: Sliders, label: 'Transitions' },
     { icon: Layers, label: 'Captions' },
-    { icon: Sliders, label: 'Filters' },
+    { icon: Radio, label: 'Filters' },
   ];
 
   return (
