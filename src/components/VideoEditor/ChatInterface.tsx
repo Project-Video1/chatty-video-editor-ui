@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, MessageSquare, Bot, User, Sparkles, Minimize2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 interface ChatMessage {
   id: number;
@@ -19,17 +20,16 @@ export const ChatInterface: React.FC = () => {
     {
       id: 1,
       sender: 'ai',
-      text: "Hi there! I'm your AI video assistant. How can I help with your video?",
+      text: "Hi there! I'm your AI video assistant. How can I help with your project?",
       timestamp: new Date()
     }
   ]);
   
   const quickEditSuggestions = [
     "Cut silent parts",
-    "Add intro & outro",
+    "Add transitions",
     "Create highlights",
-    "Add subtitles",
-    "Sync to beat"
+    "Generate captions"
   ];
 
   const handleSendMessage = () => {
@@ -51,7 +51,7 @@ export const ChatInterface: React.FC = () => {
       const aiResponse = {
         id: messages.length + 2,
         sender: 'ai' as const,
-        text: `I'll help you ${message.toLowerCase()}. Analyzing your video...`,
+        text: `I'll help you with that request. Let me analyze your project...`,
         timestamp: new Date()
       };
       setMessages(msgs => [...msgs, aiResponse]);
@@ -64,10 +64,10 @@ export const ChatInterface: React.FC = () => {
 
   if (!isExpanded) {
     return (
-      <div className="fixed bottom-4 right-4">
+      <div className="fixed bottom-4 right-4 z-50">
         <Button 
           size="icon" 
-          className="h-10 w-10 rounded-full bg-editor-accent hover:bg-editor-accent/90 shadow-lg"
+          className="h-10 w-10 rounded-full bg-primary hover:bg-primary/90 shadow-lg"
           onClick={() => setIsExpanded(true)}
         >
           <MessageSquare className="h-4 w-4" />
@@ -79,10 +79,10 @@ export const ChatInterface: React.FC = () => {
   return (
     <div className="w-64 border-l border-editor-border bg-editor-darker flex flex-col">
       {/* Chat header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-editor-border">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-editor-border bg-editor-darker/80 backdrop-blur-sm">
         <div className="flex items-center">
-          <div className="w-6 h-6 rounded-full bg-editor-accent flex items-center justify-center mr-2">
-            <Bot className="w-3.5 h-3.5" />
+          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center mr-2">
+            <Bot className="w-3.5 h-3.5 text-primary" />
           </div>
           <div>
             <div className="text-xs font-medium">AI Assistant</div>
@@ -100,20 +100,28 @@ export const ChatInterface: React.FC = () => {
           {messages.map((msg) => (
             <div 
               key={msg.id} 
-              className={`flex items-start space-x-2 ${msg.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}
+              className={cn(
+                "flex items-start space-x-2",
+                msg.sender === 'user' ? "flex-row-reverse space-x-reverse" : ""
+              )}
             >
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                msg.sender === 'ai' ? 'bg-editor-accent' : 'bg-gray-600'
-              }`}>
+              <div className={cn(
+                "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0",
+                msg.sender === 'ai' ? "bg-primary/20 text-primary" : "bg-gray-600"
+              )}>
                 {msg.sender === 'ai' ? <Bot className="w-3 h-3" /> : <User className="w-3 h-3" />}
               </div>
               
-              <div className={`flex-1 max-w-[80%] ${msg.sender === 'user' ? 'text-right' : ''}`}>
-                <div className={`p-2 rounded ${
+              <div className={cn(
+                "flex-1 max-w-[80%]",
+                msg.sender === 'user' ? "text-right" : ""
+              )}>
+                <div className={cn(
+                  "p-2 rounded",
                   msg.sender === 'ai' 
-                    ? 'bg-editor-dark rounded-tl-none' 
-                    : 'bg-editor-accent/20 text-white rounded-tr-none'
-                }`}>
+                    ? "bg-editor-dark rounded-tl-none" 
+                    : "bg-primary/20 text-white rounded-tr-none"
+                )}>
                   <p className="text-xs">{msg.text}</p>
                 </div>
                 <div className="text-[10px] text-gray-500 mt-0.5">{formatTime(msg.timestamp)}</div>
@@ -126,7 +134,7 @@ export const ChatInterface: React.FC = () => {
       {/* Quick edit suggestions */}
       <div className="p-2 border-t border-editor-border">
         <div className="flex items-center mb-1.5">
-          <Sparkles className="w-3 h-3 text-editor-accent mr-1" />
+          <Sparkles className="w-3 h-3 text-primary mr-1" />
           <div className="text-[10px] font-medium">SUGGESTED EDITS</div>
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -134,7 +142,7 @@ export const ChatInterface: React.FC = () => {
             <Button 
               key={index} 
               variant="outline" 
-              className="h-6 text-[10px] py-0 px-2 bg-editor-dark border-editor-border hover:bg-editor-border"
+              className="h-6 text-[10px] py-0 px-2 bg-editor-dark border-editor-border hover:bg-primary/10 hover:border-primary/30"
               onClick={() => {
                 setMessage(suggestion);
               }}
@@ -155,7 +163,7 @@ export const ChatInterface: React.FC = () => {
           }}
         >
           <Input
-            placeholder="Type edit instructions..."
+            placeholder="Type your request..."
             className="bg-editor-dark border-editor-border text-xs h-7"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
@@ -163,7 +171,7 @@ export const ChatInterface: React.FC = () => {
           <Button 
             type="submit"
             size="icon" 
-            className="bg-editor-accent hover:bg-editor-accent/90 h-7 w-7"
+            className="bg-primary hover:bg-primary/90 h-7 w-7"
             disabled={!message.trim()}
           >
             <Send className="w-3 h-3" />

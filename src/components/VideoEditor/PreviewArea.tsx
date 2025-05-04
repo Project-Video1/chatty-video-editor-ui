@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Play, SkipBack, SkipForward, Settings, Volume2, Volume1, VolumeX } from 'lucide-react';
+import { Play, SkipBack, SkipForward, Settings, Volume2, Volume1, VolumeX, Pause } from 'lucide-react';
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
@@ -39,20 +39,19 @@ export const PreviewArea: React.FC = () => {
       </div>
       
       {/* Preview content */}
-      <div className="flex-1 flex items-center justify-center bg-editor-darker/50 relative">
-        <div className="relative max-h-[80%] max-w-[90%] aspect-video rounded overflow-hidden border border-editor-border bg-black">
-          <img 
-            src="https://via.placeholder.com/1280x720?text=Video+Preview" 
-            alt="Video preview" 
-            className="w-full h-full object-contain"
-          />
+      <div className="flex-1 flex items-center justify-center bg-editor-darker/30 relative">
+        <div className="relative max-h-[80%] max-w-[90%] aspect-video rounded-md overflow-hidden border border-editor-border bg-black shadow-lg">
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-editor-darker to-black">
+            <div className="text-white/70 text-lg">Preview Area</div>
+          </div>
+          
           {!isPlaying && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity">
               <Button 
-                className="rounded-full w-12 h-12 bg-white/20 hover:bg-white/30"
+                className="rounded-full w-12 h-12 bg-primary/30 hover:bg-primary/50 backdrop-blur-sm"
                 onClick={togglePlay}
               >
-                <Play className="w-5 h-5 text-white" />
+                <Play className="w-5 h-5 text-white ml-1" />
               </Button>
             </div>
           )}
@@ -77,17 +76,20 @@ export const PreviewArea: React.FC = () => {
           <div className="text-xs text-gray-400">{formatTime(currentTime)}</div>
           
           <div className="flex items-center space-x-3">
-            <Button variant="ghost" className="rounded-full w-7 h-7 p-0">
+            <Button variant="ghost" className="rounded-full w-7 h-7 p-0 hover:bg-primary/10">
               <SkipBack className="w-3.5 h-3.5" />
             </Button>
             <Button 
               variant="ghost"
-              className="rounded-full w-8 h-8 bg-editor-dark hover:bg-editor-border"
+              className="rounded-full w-8 h-8 bg-editor-dark hover:bg-primary/20"
               onClick={togglePlay}
             >
-              <Play className="w-4 h-4" />
+              {isPlaying ? 
+                <Pause className="w-4 h-4" /> : 
+                <Play className="w-4 h-4" />
+              }
             </Button>
-            <Button variant="ghost" className="rounded-full w-7 h-7 p-0">
+            <Button variant="ghost" className="rounded-full w-7 h-7 p-0 hover:bg-primary/10">
               <SkipForward className="w-3.5 h-3.5" />
             </Button>
           </div>

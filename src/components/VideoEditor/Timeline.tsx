@@ -5,6 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { cn } from '@/lib/utils';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type TrackType = 'video' | 'audio' | 'text' | 'effects';
 
@@ -14,13 +15,6 @@ interface Track {
   type: TrackType;
   visible: boolean;
   locked: boolean;
-  clips: {
-    id: number;
-    start: number;
-    duration: number;
-    color: string;
-    name: string;
-  }[];
 }
 
 export const Timeline: React.FC = () => {
@@ -38,21 +32,13 @@ export const Timeline: React.FC = () => {
       type: "video",
       visible: true,
       locked: false,
-      clips: [
-        { id: 101, start: 0, duration: 8, color: "bg-blue-500", name: "Intro" },
-        { id: 102, start: 10, duration: 5, color: "bg-blue-600", name: "Scene 1" },
-        { id: 103, start: 16, duration: 8, color: "bg-blue-500", name: "Outro" }
-      ]
     },
     {
       id: 2,
-      name: "Overlay",
+      name: "B-Roll",
       type: "video",
       visible: true,
       locked: false,
-      clips: [
-        { id: 201, start: 2, duration: 6, color: "bg-green-500", name: "B-Roll" }
-      ]
     },
     {
       id: 3,
@@ -60,10 +46,6 @@ export const Timeline: React.FC = () => {
       type: "audio",
       visible: true,
       locked: false,
-      clips: [
-        { id: 301, start: 1, duration: 2, color: "bg-amber-500", name: "Whoosh" },
-        { id: 302, start: 15, duration: 3, color: "bg-amber-600", name: "Transition" }
-      ]
     },
     {
       id: 4,
@@ -71,21 +53,7 @@ export const Timeline: React.FC = () => {
       type: "audio",
       visible: true,
       locked: false,
-      clips: [
-        { id: 401, start: 0, duration: 24, color: "bg-purple-500", name: "Background Music" }
-      ]
     },
-    {
-      id: 5,
-      name: "Titles",
-      type: "text",
-      visible: true,
-      locked: false,
-      clips: [
-        { id: 501, start: 1, duration: 5, color: "bg-pink-500", name: "Main Title" },
-        { id: 502, start: 22, duration: 6, color: "bg-pink-600", name: "Credits" }
-      ]
-    }
   ]);
 
   const generateTimeMarkers = () => {
@@ -131,15 +99,14 @@ export const Timeline: React.FC = () => {
     ));
   };
 
-  const calculateClipPosition = (start: number, duration: number) => {
-    const pixelsPerSecond = 40 * zoom;
-    const left = start * pixelsPerSecond;
-    const width = duration * pixelsPerSecond;
-    
-    return {
-      left: `${left}px`,
-      width: `${width}px`
-    };
+  const getTrackColor = (type: TrackType) => {
+    switch(type) {
+      case 'video': return 'bg-blue-500';
+      case 'audio': return 'bg-purple-500';
+      case 'text': return 'bg-pink-500';
+      case 'effects': return 'bg-green-500';
+      default: return 'bg-gray-500';
+    }
   };
 
   return (
@@ -147,7 +114,7 @@ export const Timeline: React.FC = () => {
       {/* Timeline header */}
       <div className="flex items-center justify-between px-3 py-1 bg-editor-darker border-b border-editor-border">
         <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="sm" className="h-6 text-xs px-2">
+          <Button variant="ghost" size="sm" className="h-6 text-xs px-2 hover:bg-primary/10">
             <Play className="w-3 h-3 mr-1" />
             Play
           </Button>
@@ -181,12 +148,12 @@ export const Timeline: React.FC = () => {
             </ToggleGroupItem>
           </ToggleGroup>
           
-          <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2">
+          <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2 hover:bg-primary/10">
             <Plus className="w-3 h-3 mr-1" />
             Track
           </Button>
           
-          <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2">
+          <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2 hover:bg-primary/10">
             <Scissors className="w-3 h-3 mr-1" />
             Split
           </Button>
@@ -218,83 +185,156 @@ export const Timeline: React.FC = () => {
               </Button>
             </div>
             
-            {tracks.map((track) => (
-              <div 
-                key={track.id}
-                className="h-8 border-b border-editor-border flex items-center px-1.5 group"
-              >
-                <div className="flex items-center space-x-1 w-full">
-                  <div className={`w-4 h-4 rounded flex items-center justify-center ${
-                    track.type === 'video' ? 'bg-blue-500/20 text-blue-500' :
-                    track.type === 'audio' ? 'bg-purple-500/20 text-purple-500' :
-                    track.type === 'text' ? 'bg-pink-500/20 text-pink-500' : 'bg-green-500/20 text-green-500'
-                  }`}>
-                    {getTrackTypeIcon(track.type)}
-                  </div>
-                  <span className="text-[10px] flex-1 truncate">{track.name}</span>
-                  
-                  <div className="flex items-center space-x-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-5 w-5" 
-                      onClick={() => toggleTrackVisibility(track.id)}
-                    >
-                      {track.visible ? (
-                        <Eye className="w-3 h-3" />
-                      ) : (
-                        <EyeOff className="w-3 h-3 text-gray-500" />
-                      )}
-                    </Button>
+            <ScrollArea className="flex-1">
+              {tracks.map((track) => (
+                <div 
+                  key={track.id}
+                  className="h-8 border-b border-editor-border flex items-center px-1.5 group"
+                >
+                  <div className="flex items-center space-x-1 w-full">
+                    <div className={cn(
+                      "w-4 h-4 rounded flex items-center justify-center",
+                      track.type === 'video' ? 'bg-blue-500/20 text-blue-500' :
+                      track.type === 'audio' ? 'bg-purple-500/20 text-purple-500' :
+                      track.type === 'text' ? 'bg-pink-500/20 text-pink-500' : 'bg-green-500/20 text-green-500'
+                    )}>
+                      {getTrackTypeIcon(track.type)}
+                    </div>
+                    <span className="text-[10px] flex-1 truncate">{track.name}</span>
                     
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-5 w-5" 
-                      onClick={() => toggleTrackLock(track.id)}
-                    >
-                      <Lock className={`w-3 h-3 ${track.locked ? 'text-editor-accent' : 'text-gray-500'}`} />
-                    </Button>
+                    <div className="flex items-center space-x-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-5 w-5" 
+                        onClick={() => toggleTrackVisibility(track.id)}
+                      >
+                        {track.visible ? (
+                          <Eye className="w-3 h-3" />
+                        ) : (
+                          <EyeOff className="w-3 h-3 text-gray-500" />
+                        )}
+                      </Button>
+                      
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-5 w-5" 
+                        onClick={() => toggleTrackLock(track.id)}
+                      >
+                        <Lock className={cn("w-3 h-3", track.locked ? "text-primary" : "text-gray-500")} />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </ScrollArea>
+            
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 border-t border-editor-border rounded-none justify-start text-[10px] text-primary"
+              onClick={() => {
+                const newTrackId = tracks.length + 1;
+                setTracks([...tracks, {
+                  id: newTrackId,
+                  name: `Track ${newTrackId}`,
+                  type: 'video',
+                  visible: true,
+                  locked: false
+                }]);
+              }}
+            >
+              <Plus className="w-3.5 h-3.5 mr-1" />
+              Add Track
+            </Button>
           </div>
           
           {/* Timeline tracks content */}
           <div className="flex-1 overflow-auto relative">
             {/* Current time indicator */}
             <div 
-              className="absolute h-full w-px bg-editor-accent top-0 z-10 pointer-events-none"
+              className="absolute h-full w-px bg-primary z-10 pointer-events-none"
               style={{ left: `${currentTime * 40 * zoom}px` }}
             ></div>
             
             {/* Track contents */}
-            <div style={{ width: `${totalDuration * 40 * zoom}px` }}>
+            <div style={{ width: `${totalDuration * 40 * zoom}px` }} className="h-full">
               {tracks.map((track) => (
                 <div 
                   key={track.id} 
                   className="h-8 border-b border-editor-border relative flex items-center"
                 >
-                  {track.clips.map((clip) => (
+                  {/* Show empty track with dashed border for drag and drop */}
+                  <div className="absolute w-full h-6 border border-dashed border-editor-border rounded-sm mx-1 my-1"></div>
+                  
+                  {/* Sample clip for demonstration - in a real app, this would come from state */}
+                  {track.id === 1 && (
+                    <>
+                      <div 
+                        className={cn(
+                          "absolute h-6 top-1 rounded-sm flex items-center px-1.5 cursor-pointer",
+                          "bg-blue-500",
+                          track.locked ? "opacity-60" : "opacity-90 hover:opacity-100"
+                        )}
+                        style={{ left: '40px', width: '160px' }}
+                      >
+                        <span className="text-[10px] text-white truncate">Intro</span>
+                      </div>
+                      <div 
+                        className={cn(
+                          "absolute h-6 top-1 rounded-sm flex items-center px-1.5 cursor-pointer",
+                          "bg-blue-600",
+                          track.locked ? "opacity-60" : "opacity-90 hover:opacity-100"
+                        )}
+                        style={{ left: '400px', width: '200px' }}
+                      >
+                        <span className="text-[10px] text-white truncate">Outro</span>
+                      </div>
+                    </>
+                  )}
+                  {track.id === 2 && (
                     <div 
-                      key={clip.id}
                       className={cn(
                         "absolute h-6 top-1 rounded-sm flex items-center px-1.5 cursor-pointer",
-                        clip.color,
+                        "bg-blue-400",
                         track.locked ? "opacity-60" : "opacity-90 hover:opacity-100"
                       )}
-                      style={calculateClipPosition(clip.start, clip.duration)}
+                      style={{ left: '120px', width: '120px' }}
                     >
-                      <span className="text-[10px] text-white truncate">{clip.name}</span>
+                      <span className="text-[10px] text-white truncate">B-Roll</span>
                     </div>
-                  ))}
+                  )}
+                  {track.id === 3 && (
+                    <div 
+                      className={cn(
+                        "absolute h-6 top-1 rounded-sm flex items-center px-1.5 cursor-pointer",
+                        "bg-purple-500",
+                        track.locked ? "opacity-60" : "opacity-90 hover:opacity-100"
+                      )}
+                      style={{ left: '200px', width: '80px' }}
+                    >
+                      <span className="text-[10px] text-white truncate">SFX</span>
+                    </div>
+                  )}
+                  {track.id === 4 && (
+                    <div 
+                      className={cn(
+                        "absolute h-6 top-1 rounded-sm flex items-center px-1.5 cursor-pointer",
+                        "bg-purple-400",
+                        track.locked ? "opacity-60" : "opacity-90 hover:opacity-100"
+                      )}
+                      style={{ left: '40px', width: '600px' }}
+                    >
+                      <span className="text-[10px] text-white truncate">Music</span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
             
             {/* Empty state message - show only if no clips */}
-            {tracks.every(track => track.clips.length === 0) && (
+            {tracks.length === 0 && (
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-gray-500 flex flex-col items-center">
                 <Plus className="w-6 h-6 border-2 border-dashed border-gray-600 rounded-full p-1" />
                 <div className="text-xs mt-1">Drag media to create timeline</div>

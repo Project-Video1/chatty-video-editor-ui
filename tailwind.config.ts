@@ -64,10 +64,10 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				editor: {
-					dark: '#1A1F2C',
-					darker: '#131722',
-					accent: '#8B5CF6',
-					border: '#2A2F3C'
+					dark: '#0F172A',
+					darker: '#0B1120',
+					accent: '#3B82F6',
+					border: '#1E293B'
 				}
 			},
 			borderRadius: {

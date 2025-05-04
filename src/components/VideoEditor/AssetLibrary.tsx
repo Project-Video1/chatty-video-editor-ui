@@ -4,31 +4,16 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-
-// Mock media items for demonstration
-const mediaItems = [
-  { id: 1, name: "intro.mp4", duration: "00:16", type: "video", selected: false },
-  { id: 2, name: "interview.mp4", duration: "02:34", type: "video", selected: false },
-  { id: 3, name: "background.jpg", type: "image", selected: false },
-  { id: 4, name: "outro.mp4", duration: "00:28", type: "video", selected: false },
-  { id: 5, name: "logo.png", type: "image", selected: false },
-  { id: 6, name: "music.mp3", duration: "03:45", type: "audio", selected: false }
-];
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export const AssetLibrary: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [items, setItems] = useState(mediaItems);
   const [searchQuery, setSearchQuery] = useState('');
   
   const handleItemSelection = (id: number) => {
-    setItems(items.map(item => 
-      item.id === id ? { ...item, selected: !item.selected } : item
-    ));
+    // This would update the selected items in a real app
+    console.log(`Asset ${id} selected`);
   };
-  
-  const filteredItems = items.filter(item => 
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
   
   return (
     <div className="w-64 bg-editor-darker border-r border-editor-border flex flex-col">
@@ -87,115 +72,171 @@ export const AssetLibrary: React.FC = () => {
         </div>
         
         {/* Media Items */}
-        <TabsContent value="all" className="p-0 mt-0">
-          <div className="p-2 flex-1 overflow-y-auto max-h-[calc(100vh-22rem)]">
-            <div className="text-xs text-gray-400 mb-2 flex items-center justify-between">
-              <span>Recently Added</span>
-              <Clock className="w-3 h-3" />
+        <TabsContent value="all" className="p-0 mt-0 flex-1">
+          <ScrollArea className="h-[calc(100vh-22rem)]">
+            <div className="p-2">
+              <div className="text-xs text-gray-400 mb-2 flex items-center justify-between">
+                <span>Recent Uploads</span>
+                <Clock className="w-3 h-3" />
+              </div>
+              
+              {viewMode === 'grid' ? (
+                <div className="grid grid-cols-2 gap-2">
+                  <MediaItem id={1} type="video" viewMode="grid" onSelect={handleItemSelection} />
+                  <MediaItem id={2} type="image" viewMode="grid" onSelect={handleItemSelection} />
+                  <MediaItem id={3} type="video" viewMode="grid" onSelect={handleItemSelection} />
+                  <MediaItem id={4} type="audio" viewMode="grid" onSelect={handleItemSelection} />
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <MediaItem id={1} type="video" viewMode="list" onSelect={handleItemSelection} />
+                  <MediaItem id={2} type="image" viewMode="list" onSelect={handleItemSelection} />
+                  <MediaItem id={3} type="video" viewMode="list" onSelect={handleItemSelection} />
+                  <MediaItem id={4} type="audio" viewMode="list" onSelect={handleItemSelection} />
+                </div>
+              )}
             </div>
-            
-            {viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 gap-2">
-                {filteredItems.map((item) => (
-                  <div 
-                    key={item.id}
-                    className={cn(
-                      "relative group cursor-pointer hover:opacity-95 transition-all",
-                      item.selected ? "ring-1 ring-editor-accent" : ""
-                    )}
-                    onClick={() => handleItemSelection(item.id)}
-                  >
-                    {item.duration && (
-                      <div className="absolute top-1 right-1 text-[10px] bg-black/70 px-1 rounded">
-                        {item.duration}
-                      </div>
-                    )}
-                    <div className="relative">
-                      <img 
-                        src={`https://via.placeholder.com/150?text=${item.type}`}
-                        alt={item.name}
-                        className="w-full aspect-video object-cover rounded-sm border border-editor-border"
-                      />
-                      {item.selected && (
-                        <div className="absolute top-1 left-1">
-                          <CheckCircle className="w-3 h-3 text-editor-accent" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all"></div>
-                    </div>
-                    <div className="text-[10px] mt-1 flex items-center justify-between">
-                      <span className="truncate">{item.name}</span>
-                      <span className="text-[8px] text-gray-400 capitalize">{item.type}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-1">
-                {filteredItems.map((item) => (
-                  <div 
-                    key={item.id}
-                    className={cn(
-                      "flex items-center p-1.5 rounded-sm hover:bg-editor-dark/50 cursor-pointer",
-                      item.selected ? "bg-editor-dark/80" : ""
-                    )}
-                    onClick={() => handleItemSelection(item.id)}
-                  >
-                    <div className="w-8 h-8 mr-2 flex-shrink-0 rounded overflow-hidden border border-editor-border">
-                      <img 
-                        src={`https://via.placeholder.com/40?text=${item.type}`}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs truncate">{item.name}</div>
-                      <div className="flex items-center text-[10px] text-gray-400">
-                        <span className="capitalize">{item.type}</span>
-                        {item.duration && (
-                          <>
-                            <span className="mx-1">•</span>
-                            <span>{item.duration}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    {item.selected && (
-                      <CheckCircle className="w-3 h-3 text-editor-accent ml-1" />
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            {filteredItems.length === 0 && (
-              <div className="text-center py-6 text-gray-400">
-                <Search className="w-6 h-6 mx-auto mb-1 opacity-50" />
-                <p className="text-xs">No matching assets found</p>
-              </div>
-            )}
-          </div>
+          </ScrollArea>
         </TabsContent>
         
         {/* Other tab contents */}
-        <TabsContent value="videos" className="p-2 mt-0">
-          <div className="text-center py-6 text-gray-400">
-            <span className="text-xs">Video assets will appear here</span>
-          </div>
+        <TabsContent value="videos" className="p-0 mt-0 flex-1">
+          <ScrollArea className="h-[calc(100vh-22rem)]">
+            <div className="p-2">
+              <MediaItem id={1} type="video" viewMode={viewMode} onSelect={handleItemSelection} />
+              <MediaItem id={3} type="video" viewMode={viewMode} onSelect={handleItemSelection} />
+            </div>
+          </ScrollArea>
         </TabsContent>
         
-        <TabsContent value="images" className="p-2 mt-0">
-          <div className="text-center py-6 text-gray-400">
-            <span className="text-xs">Image assets will appear here</span>
-          </div>
+        <TabsContent value="images" className="p-0 mt-0 flex-1">
+          <ScrollArea className="h-[calc(100vh-22rem)]">
+            <div className="p-2">
+              <MediaItem id={2} type="image" viewMode={viewMode} onSelect={handleItemSelection} />
+            </div>
+          </ScrollArea>
         </TabsContent>
         
-        <TabsContent value="audio" className="p-2 mt-0">
-          <div className="text-center py-6 text-gray-400">
-            <span className="text-xs">Audio assets will appear here</span>
-          </div>
+        <TabsContent value="audio" className="p-0 mt-0 flex-1">
+          <ScrollArea className="h-[calc(100vh-22rem)]">
+            <div className="p-2">
+              <MediaItem id={4} type="audio" viewMode={viewMode} onSelect={handleItemSelection} />
+            </div>
+          </ScrollArea>
         </TabsContent>
       </Tabs>
+    </div>
+  );
+};
+
+interface MediaItemProps {
+  id: number;
+  type: 'video' | 'image' | 'audio';
+  viewMode: 'grid' | 'list';
+  onSelect: (id: number) => void;
+}
+
+const MediaItem: React.FC<MediaItemProps> = ({ id, type, viewMode, onSelect }) => {
+  const [selected, setSelected] = useState(false);
+  
+  const handleClick = () => {
+    setSelected(!selected);
+    onSelect(id);
+  };
+  
+  const getMediaName = () => {
+    switch (type) {
+      case 'video':
+        return `Video ${id}.mp4`;
+      case 'image':
+        return `Image ${id}.jpg`;
+      case 'audio':
+        return `Audio ${id}.mp3`;
+      default:
+        return `File ${id}`;
+    }
+  };
+  
+  const getDuration = () => {
+    if (type === 'audio') return '03:24';
+    if (type === 'video') return '00:32';
+    return null;
+  };
+  
+  const getIcon = () => {
+    switch (type) {
+      case 'video':
+        return '🎬';
+      case 'image':
+        return '🖼️';
+      case 'audio':
+        return '🎵';
+      default:
+        return '📄';
+    }
+  };
+  
+  if (viewMode === 'grid') {
+    return (
+      <div 
+        className={cn(
+          "relative group cursor-pointer hover:opacity-95 transition-all",
+          selected ? "ring-1 ring-primary" : ""
+        )}
+        onClick={handleClick}
+      >
+        {getDuration() && (
+          <div className="absolute top-1 right-1 text-[10px] bg-black/70 px-1 rounded">
+            {getDuration()}
+          </div>
+        )}
+        <div className="relative">
+          <div 
+            className="w-full aspect-video rounded-sm border border-editor-border flex items-center justify-center bg-editor-dark overflow-hidden"
+          >
+            <span className="text-2xl">{getIcon()}</span>
+          </div>
+          {selected && (
+            <div className="absolute top-1 left-1">
+              <CheckCircle className="w-3 h-3 text-primary" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all"></div>
+        </div>
+        <div className="text-[10px] mt-1 flex items-center justify-between">
+          <span className="truncate">{getMediaName()}</span>
+          <span className="text-[8px] text-gray-400 capitalize">{type}</span>
+        </div>
+      </div>
+    );
+  }
+  
+  return (
+    <div 
+      className={cn(
+        "flex items-center p-1.5 rounded-sm hover:bg-editor-dark/50 cursor-pointer",
+        selected ? "bg-editor-dark/80" : ""
+      )}
+      onClick={handleClick}
+    >
+      <div className="w-8 h-8 mr-2 flex-shrink-0 rounded overflow-hidden border border-editor-border bg-editor-dark flex items-center justify-center">
+        <span>{getIcon()}</span>
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-xs truncate">{getMediaName()}</div>
+        <div className="flex items-center text-[10px] text-gray-400">
+          <span className="capitalize">{type}</span>
+          {getDuration() && (
+            <>
+              <span className="mx-1">•</span>
+              <span>{getDuration()}</span>
+            </>
+          )}
+        </div>
+      </div>
+      {selected && (
+        <CheckCircle className="w-3 h-3 text-primary ml-1" />
+      )}
     </div>
   );
 };
