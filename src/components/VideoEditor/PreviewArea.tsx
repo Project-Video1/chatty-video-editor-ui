@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Play, SkipBack, SkipForward, Settings, Volume2, RotateCcw, Volume1, VolumeX } from 'lucide-react';
+import { Play, SkipBack, SkipForward, Settings, Volume2, Volume1, VolumeX } from 'lucide-react';
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
@@ -25,28 +25,22 @@ export const PreviewArea: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col bg-editor-dark">
       {/* Preview header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-editor-border bg-editor-darker">
-        <div className="flex items-center space-x-4">
-          <span className="text-sm font-medium">Preview</span>
-          <ToggleGroup type="single" defaultValue="video">
-            <ToggleGroupItem value="video" size="sm">Video</ToggleGroupItem>
-            <ToggleGroupItem value="audio" size="sm">Audio</ToggleGroupItem>
+      <div className="flex items-center justify-between px-3 py-1.5 border-b border-editor-border bg-editor-darker">
+        <div className="flex items-center space-x-2">
+          <span className="text-xs">Preview</span>
+          <ToggleGroup type="single" defaultValue="video" size="sm">
+            <ToggleGroupItem value="video" className="text-xs h-6 px-2">Video</ToggleGroupItem>
+            <ToggleGroupItem value="audio" className="text-xs h-6 px-2">Audio</ToggleGroupItem>
           </ToggleGroup>
         </div>
-        <div className="flex items-center space-x-3">
-          <Button variant="outline" size="sm" className="h-8 bg-transparent">
-            <RotateCcw className="w-3.5 h-3.5 mr-1" />
-            Undo
-          </Button>
-          <Toggle size="sm">
-            <Settings className="w-3.5 h-3.5" />
-          </Toggle>
-        </div>
+        <Toggle size="sm" className="h-6 w-6">
+          <Settings className="w-3.5 h-3.5" />
+        </Toggle>
       </div>
       
       {/* Preview content */}
-      <div className="flex-1 flex items-center justify-center bg-editor-darker relative">
-        <div className="relative max-h-[80%] max-w-[90%] aspect-video rounded overflow-hidden shadow-xl border border-editor-border">
+      <div className="flex-1 flex items-center justify-center bg-editor-darker/50 relative">
+        <div className="relative max-h-[80%] max-w-[90%] aspect-video rounded overflow-hidden border border-editor-border bg-black">
           <img 
             src="https://via.placeholder.com/1280x720?text=Video+Preview" 
             alt="Video preview" 
@@ -55,10 +49,10 @@ export const PreviewArea: React.FC = () => {
           {!isPlaying && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/20">
               <Button 
-                className="rounded-full w-16 h-16 bg-white/20 hover:bg-white/30 backdrop-blur"
+                className="rounded-full w-12 h-12 bg-white/20 hover:bg-white/30"
                 onClick={togglePlay}
               >
-                <Play className="w-7 h-7 text-white" />
+                <Play className="w-5 h-5 text-white" />
               </Button>
             </div>
           )}
@@ -66,46 +60,46 @@ export const PreviewArea: React.FC = () => {
       </div>
       
       {/* Preview controls */}
-      <div className="px-5 py-4 flex flex-col border-t border-editor-border bg-editor-darker">
+      <div className="px-3 py-2 flex flex-col border-t border-editor-border bg-editor-darker">
         {/* Progress bar */}
-        <div className="px-2">
+        <div>
           <Slider 
             defaultValue={[0]} 
             max={totalDuration}
             step={0.1}
             value={[currentTime]}
             onValueChange={(val) => setCurrentTime(val[0])}
-            className="mb-2"
+            className="mb-1.5"
           />
         </div>
         
         <div className="flex items-center justify-between">
           <div className="text-xs text-gray-400">{formatTime(currentTime)}</div>
           
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" className="rounded-full w-8 h-8 p-0">
-              <SkipBack className="w-4 h-4" />
+          <div className="flex items-center space-x-3">
+            <Button variant="ghost" className="rounded-full w-7 h-7 p-0">
+              <SkipBack className="w-3.5 h-3.5" />
             </Button>
             <Button 
               variant="ghost"
-              className="rounded-full w-10 h-10 bg-editor-dark hover:bg-editor-border"
+              className="rounded-full w-8 h-8 bg-editor-dark hover:bg-editor-border"
               onClick={togglePlay}
             >
-              <Play className="w-5 h-5" />
+              <Play className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" className="rounded-full w-8 h-8 p-0">
-              <SkipForward className="w-4 h-4" />
+            <Button variant="ghost" className="rounded-full w-7 h-7 p-0">
+              <SkipForward className="w-3.5 h-3.5" />
             </Button>
           </div>
           
-          <div className="flex items-center space-x-2">
-            <VolumeIcon className="w-4 h-4 text-gray-400" />
+          <div className="flex items-center space-x-1.5">
+            <VolumeIcon className="w-3.5 h-3.5 text-gray-400" />
             <Slider
               defaultValue={[75]}
               max={100}
               value={[volume]}
               onValueChange={(val) => setVolume(val[0])}
-              className="w-24"
+              className="w-20"
             />
             <div className="text-xs text-gray-400">{formatTime(totalDuration)}</div>
           </div>
