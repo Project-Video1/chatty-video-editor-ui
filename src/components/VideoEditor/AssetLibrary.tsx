@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Search, Grid, List, SlidersHorizontal } from 'lucide-react';
+import { Search, Grid, List, SlidersHorizontal, Upload } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 export const AssetLibrary: React.FC = () => {
@@ -21,7 +21,7 @@ export const AssetLibrary: React.FC = () => {
       <div className="flex justify-between items-center px-3 py-2 border-b border-editor-border">
         <div className="flex items-center space-x-1">
           <div className="bg-editor-accent/20 text-editor-accent rounded-full p-1">
-            <Import className="w-4 h-4" />
+            <Upload className="w-4 h-4" />
           </div>
           <span className="text-sm">Import</span>
         </div>
