@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
-import { Play, ChevronDown, Plus, Scissors, Lock, Eye, EyeOff, Music, Video, Text, Layers } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Play, ChevronDown, Plus, Scissors, Lock, Eye, EyeOff, Music, Video, Text, Layers, Trash2, Undo, Redo } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 
 type TrackType = 'video' | 'audio' | 'text' | 'effects';
 
@@ -21,6 +22,8 @@ export const Timeline: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [showAllTracks, setShowAllTracks] = useState(true);
+  const [hoverPosition, setHoverPosition] = useState<number | null>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
   
   const totalDuration = 30; // seconds
   const ticksCount = Math.ceil(totalDuration * zoom);
@@ -55,6 +58,21 @@ export const Timeline: React.FC = () => {
       locked: false,
     },
   ]);
+  
+  // Track mouse position on timeline
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (timelineRef.current) {
+      const rect = timelineRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      // Convert x position to time value
+      const timePosition = (x / (timelineRef.current.scrollWidth)) * totalDuration * zoom;
+      setHoverPosition(Math.max(0, Math.min(timePosition, totalDuration)));
+    }
+  };
+  
+  const handleMouseLeave = () => {
+    setHoverPosition(null);
+  };
 
   const generateTimeMarkers = () => {
     const markers = [];
@@ -99,14 +117,24 @@ export const Timeline: React.FC = () => {
     ));
   };
 
-  const getTrackColor = (type: TrackType) => {
-    switch(type) {
-      case 'video': return 'bg-blue-500';
-      case 'audio': return 'bg-purple-500';
-      case 'text': return 'bg-pink-500';
-      case 'effects': return 'bg-green-500';
-      default: return 'bg-gray-500';
-    }
+  const handleTrim = () => {
+    console.log("Trim at position:", currentTime);
+    // Trim functionality would be implemented here
+  };
+  
+  const handleDelete = () => {
+    console.log("Delete selection");
+    // Delete functionality would be implemented here
+  };
+  
+  const handleUndo = () => {
+    console.log("Undo last action");
+    // Undo functionality would be implemented here
+  };
+  
+  const handleRedo = () => {
+    console.log("Redo last action");
+    // Redo functionality would be implemented here
   };
 
   return (
@@ -121,6 +149,47 @@ export const Timeline: React.FC = () => {
           <span className="text-[10px] text-gray-400">
             {formatTime(currentTime)} / {formatTime(totalDuration)}
           </span>
+          
+          {/* Added new editing tools */}
+          <div className="h-4 border-r border-gray-600 mx-1"></div>
+          
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-1 hover:bg-primary/10" onClick={handleTrim}>
+                  <Scissors className="w-3.5 h-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Trim clip</TooltipContent>
+            </Tooltip>
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-1 hover:bg-primary/10" onClick={handleDelete}>
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Delete selection</TooltipContent>
+            </Tooltip>
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-1 hover:bg-primary/10" onClick={handleUndo}>
+                  <Undo className="w-3.5 h-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Undo</TooltipContent>
+            </Tooltip>
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-1 hover:bg-primary/10" onClick={handleRedo}>
+                  <Redo className="w-3.5 h-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Redo</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         
         <div className="flex items-center space-x-2">
@@ -185,7 +254,7 @@ export const Timeline: React.FC = () => {
               </Button>
             </div>
             
-            <ScrollArea className="flex-1">
+            <div className="flex-1 overflow-y-auto">
               {tracks.map((track) => (
                 <div 
                   key={track.id}
@@ -228,7 +297,7 @@ export const Timeline: React.FC = () => {
                   </div>
                 </div>
               ))}
-            </ScrollArea>
+            </div>
             
             <Button 
               variant="ghost" 
@@ -251,12 +320,25 @@ export const Timeline: React.FC = () => {
           </div>
           
           {/* Timeline tracks content */}
-          <div className="flex-1 overflow-auto relative">
+          <div 
+            ref={timelineRef}
+            className="flex-1 overflow-auto relative"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
             {/* Current time indicator */}
             <div 
               className="absolute h-full w-px bg-primary z-10 pointer-events-none"
               style={{ left: `${currentTime * 40 * zoom}px` }}
             ></div>
+            
+            {/* Hover time indicator */}
+            {hoverPosition !== null && (
+              <div 
+                className="absolute h-full w-px bg-white/30 z-5 pointer-events-none"
+                style={{ left: `${hoverPosition * 40 * zoom}px` }}
+              ></div>
+            )}
             
             {/* Track contents */}
             <div style={{ width: `${totalDuration * 40 * zoom}px` }} className="h-full">
@@ -267,73 +349,11 @@ export const Timeline: React.FC = () => {
                 >
                   {/* Show empty track with dashed border for drag and drop */}
                   <div className="absolute w-full h-6 border border-dashed border-editor-border rounded-sm mx-1 my-1"></div>
-                  
-                  {/* Sample clip for demonstration - in a real app, this would come from state */}
-                  {track.id === 1 && (
-                    <>
-                      <div 
-                        className={cn(
-                          "absolute h-6 top-1 rounded-sm flex items-center px-1.5 cursor-pointer",
-                          "bg-blue-500",
-                          track.locked ? "opacity-60" : "opacity-90 hover:opacity-100"
-                        )}
-                        style={{ left: '40px', width: '160px' }}
-                      >
-                        <span className="text-[10px] text-white truncate">Intro</span>
-                      </div>
-                      <div 
-                        className={cn(
-                          "absolute h-6 top-1 rounded-sm flex items-center px-1.5 cursor-pointer",
-                          "bg-blue-600",
-                          track.locked ? "opacity-60" : "opacity-90 hover:opacity-100"
-                        )}
-                        style={{ left: '400px', width: '200px' }}
-                      >
-                        <span className="text-[10px] text-white truncate">Outro</span>
-                      </div>
-                    </>
-                  )}
-                  {track.id === 2 && (
-                    <div 
-                      className={cn(
-                        "absolute h-6 top-1 rounded-sm flex items-center px-1.5 cursor-pointer",
-                        "bg-blue-400",
-                        track.locked ? "opacity-60" : "opacity-90 hover:opacity-100"
-                      )}
-                      style={{ left: '120px', width: '120px' }}
-                    >
-                      <span className="text-[10px] text-white truncate">B-Roll</span>
-                    </div>
-                  )}
-                  {track.id === 3 && (
-                    <div 
-                      className={cn(
-                        "absolute h-6 top-1 rounded-sm flex items-center px-1.5 cursor-pointer",
-                        "bg-purple-500",
-                        track.locked ? "opacity-60" : "opacity-90 hover:opacity-100"
-                      )}
-                      style={{ left: '200px', width: '80px' }}
-                    >
-                      <span className="text-[10px] text-white truncate">SFX</span>
-                    </div>
-                  )}
-                  {track.id === 4 && (
-                    <div 
-                      className={cn(
-                        "absolute h-6 top-1 rounded-sm flex items-center px-1.5 cursor-pointer",
-                        "bg-purple-400",
-                        track.locked ? "opacity-60" : "opacity-90 hover:opacity-100"
-                      )}
-                      style={{ left: '40px', width: '600px' }}
-                    >
-                      <span className="text-[10px] text-white truncate">Music</span>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
             
-            {/* Empty state message - show only if no clips */}
+            {/* Empty state message - show only if no tracks */}
             {tracks.length === 0 && (
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-gray-500 flex flex-col items-center">
                 <Plus className="w-6 h-6 border-2 border-dashed border-gray-600 rounded-full p-1" />
@@ -343,7 +363,7 @@ export const Timeline: React.FC = () => {
           </div>
         </div>
         
-        {/* Timeline scrubber */}
+        {/* Timeline scrubber - removed the scroll button */}
         <div className="h-5 px-36 bg-editor-darker border-t border-editor-border">
           <Slider
             value={[currentTime]}
